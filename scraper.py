@@ -1,14 +1,21 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import scraperwiki
 import BeautifulSoup
 import re
 
 def trim(v):
-    p = re.compile('^\s*(.*?)\s*$')
-    m = p.match(str(v))
-    if m:
-        return m.group(1)
-    else:
-        return str(v)
+    print v
+    if isinstance(v, basestring):
+        if not isinstance(v, unicode):
+             v = unicode(v, 'utf-8')
+        print v
+        p = re.compile('^\s*(.*?)\s*$')
+        m = p.match(v)
+        if m:
+            return m.group(1)
+    return v
 
 url = "http://www10.gencat.cat/pls/cit/p101.llista_pub?sw=1&v_tipus=0&v_tipus=2&v_tipus=3&v_tipus=4&v_tipus=5&v_tipus=6&v_ordre=1&v_pais=C&v_pro=0&v_com=0"
 
@@ -33,20 +40,19 @@ tbody = afectacions.find('tbody')
 
 for tr in tbody.findAll('tr'):
     data = {}
-    data['type'] = trim(tr.contents[1].string)
-    data['cause'] = trim(tr.contents[3].string)
-    data['level'] = trim(tr.contents[5].string)
-    data['road'] = trim(tr.contents[7].string)
-    data['start_km'] = trim(tr.contents[9].string)
-    data['end_km'] = trim(tr.contents[11].string)
-    data['direction'] = trim(tr.contents[13].string)
-    data['heading'] = trim(tr.contents[15].string)
-    data['city'] = trim(tr.contents[17].string)
-    data['district'] = trim(tr.contents[19].string)
-    data['date-time'] = trim(tr.contents[21].string)
+    if len(tr.contents) > 21:
+        data['type'] = trim(tr.contents[1].string)
+        data['cause'] = trim(tr.contents[3].string)
+        data['level'] = trim(tr.contents[5].string)
+        data['road'] = trim(tr.contents[7].string)
+        data['start_km'] = trim(tr.contents[9].string)
+        data['end_km'] = trim(tr.contents[11].string)
+        data['direction'] = trim(tr.contents[13].string)
+        data['heading'] = trim(tr.contents[15].string)
+        data['city'] = trim(tr.contents[17].string)
+        data['district'] = trim(tr.contents[19].string)
+        data['date-time'] = trim(tr.contents[21].string)
 
     print data
-
-    #crufts_date = datetime.datetime(2003, 8, 4, 12, 30, 45)
 
     scraperwiki.sqlite.save(['date-time','road','start_km','end_km','direction','heading'], data)
